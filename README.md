@@ -1,9 +1,9 @@
-# Lunion SteamGridDB
+# Lunion Services Standalone
 
 ## Dependencies
 * curl
 
 ## Building
 ``` shell
-gcc -o lunion-sgdb -lcurl -Wall -pedantic -Wextra main.c
+make
 ```
