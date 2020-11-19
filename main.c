@@ -57,7 +57,9 @@ int main(int argc, char* argv[])
 	// TODO Verif the API key
 	api->auth = strncat(api->auth, "Authorization: Bearer ", strlen("Authorization: Bearer ") + 1);
 	api->auth = strncat(api->auth, api->key, strlen(api->key) + 1);
-	api->base_url = strncat(api->base_url, "https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk", strlen("https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk") + 1);
+	api->base_url = strncat(api->base_url,
+	                        "https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk",
+	                        strlen("https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk") + 1);
 	fprintf(stdout, "%s\n", api->auth);
 	
 	
