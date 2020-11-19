@@ -27,7 +27,8 @@ typedef struct
 {
 	char* base_url;
 	char* auth;
-} sgdb;
+} http_api;
+
 
 int get_apikey(char* key)
 {
@@ -41,25 +42,26 @@ int get_apikey(char* key)
 	return EXIT_SUCCESS;
 }
 
+
 int main(int argc, char* argv[])
 {
 	char key[64];
 	CURL* curl;
 	CURLcode res;
 	
-	sgdb* api = (sgdb*) calloc(1, sizeof(sgdb));
-	api->base_url = (char*) calloc(512, sizeof(char));
-	api->auth = (char*) calloc(64, sizeof(char));
+	http_api* sgdb = (http_api*) calloc(1, sizeof(http_api));
+	sgdb->base_url = (char*) calloc(512, sizeof(char));
+	sgdb->auth = (char*) calloc(64, sizeof(char));
 	
-	fprintf(stdout, "%s\n", api->base_url);
+	fprintf(stdout, "%s\n", sgdb->base_url);
 	get_apikey(key);
 	// TODO Verif the API key (32 char)
-	api->auth = strncat(api->auth, "Authorization: Bearer ", strlen("Authorization: Bearer ") + 1);
-	api->auth = strncat(api->auth, key, strlen(key) + 1);
-	api->base_url = strncat(api->base_url,
+	sgdb->auth = strncat(sgdb->auth, "Authorization: Bearer ", strlen("Authorization: Bearer ") + 1);
+	sgdb->auth = strncat(sgdb->auth, key, strlen(key) + 1);
+	sgdb->base_url = strncat(sgdb->base_url,
 	                        "https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk",
 	                        strlen("https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk") + 1);
-	fprintf(stdout, "%s\n", api->auth);
+	fprintf(stdout, "%s\n", sgdb->auth);
 	
 	
 	// FIXME Find the memory leak (use --leak-check=full --show-leak-kinds=all)
@@ -69,9 +71,9 @@ int main(int argc, char* argv[])
 	{
 		struct curl_slist* headers = NULL;
 		
-		curl_easy_setopt(curl, CURLOPT_URL, api->base_url);
+		curl_easy_setopt(curl, CURLOPT_URL, sgdb->base_url);
 		
-		headers = curl_slist_append (headers, api->auth);
+		headers = curl_slist_append (headers, sgdb->auth);
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		
 		res = curl_easy_perform(curl);
@@ -82,9 +84,9 @@ int main(int argc, char* argv[])
 	}
 	curl_global_cleanup();
 	
-	free(api->auth);
-	free(api->base_url);
-	free(api);
+	free(sgdb->auth);
+	free(sgdb->base_url);
+	free(sgdb);
 	fprintf (stdout, "\n");
 	return EXIT_SUCCESS;
 }
