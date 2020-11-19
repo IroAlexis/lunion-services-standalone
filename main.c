@@ -26,16 +26,15 @@
 typedef struct
 {
 	char* base_url;
-	char* key;
 	char* auth;
 } sgdb;
 
-int get_apikey(char** key)
+int get_apikey(char* key)
 {
 	fprintf(stdout, "Please enter your API key (https://www.steamgriddb.com/profile/preferences): ");
 	fflush(stdout);
 	
-	fscanf(stdin, "%s", *key);
+	fscanf(stdin, "%s", key);
 	// Delete '\n' charactere
 	fgetc(stdin);
 	
@@ -44,19 +43,19 @@ int get_apikey(char** key)
 
 int main(int argc, char* argv[])
 {
+	char key[64];
 	CURL* curl;
 	CURLcode res;
 	
 	sgdb* api = (sgdb*) calloc(1, sizeof(sgdb));
 	api->base_url = (char*) calloc(512, sizeof(char));
-	api->key = (char*) calloc(33, sizeof(char));
 	api->auth = (char*) calloc(64, sizeof(char));
 	
 	fprintf(stdout, "%s\n", api->base_url);
-	get_apikey(&(api->key));
-	// TODO Verif the API key
+	get_apikey(key);
+	// TODO Verif the API key (32 char)
 	api->auth = strncat(api->auth, "Authorization: Bearer ", strlen("Authorization: Bearer ") + 1);
-	api->auth = strncat(api->auth, api->key, strlen(api->key) + 1);
+	api->auth = strncat(api->auth, key, strlen(key) + 1);
 	api->base_url = strncat(api->base_url,
 	                        "https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk",
 	                        strlen("https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk") + 1);
@@ -83,7 +82,6 @@ int main(int argc, char* argv[])
 	}
 	curl_global_cleanup();
 	
-	free(api->key);
 	free(api->auth);
 	free(api->base_url);
 	free(api);
