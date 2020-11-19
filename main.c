@@ -35,9 +35,7 @@ int get_apikey(char* key)
 	fprintf(stdout, "Please enter your API key (https://www.steamgriddb.com/profile/preferences): ");
 	fflush(stdout);
 	
-	fscanf(stdin, "%s", key);
-	// Delete '\n' charactere
-	fgetc(stdin);
+	fscanf(stdin, " %s", key);
 	
 	return EXIT_SUCCESS;
 }
