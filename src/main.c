@@ -25,43 +25,92 @@
 
 typedef struct
 {
-	char* base_url;
-	char* auth;
-} http_api;
+	char* name;
+	char* url;
+	char* h_auth;
+} service;
 
 
-int get_apikey(char* key)
+service* init_service()
 {
-	fprintf(stdout, "Please enter your API key (https://www.steamgriddb.com/profile/preferences): ");
+	service* s = (service*) calloc(1, sizeof(service));
+	s->name = (char*) calloc(64, sizeof(char));
+	s->url = (char*) calloc(512, sizeof(char));
+	s->h_auth = (char*) calloc(64, sizeof(char));
+	
+	return s;
+}
+
+
+void destruct_service(service* s)
+{
+	free(s->h_auth);
+	free(s->url);
+	free(s->name);
+	free(s);
+}
+
+
+int sgdb_get_token(char* token)
+{
+	fprintf(stdout, "Please enter your API key ( https://www.steamgriddb.com/profile/preferences ): ");
 	fflush(stdout);
 	
-	fscanf(stdin, " %s", key);
+	fscanf(stdin, " %s", token);
 	
+	return EXIT_SUCCESS;
+}
+
+
+int sgdb_verif_token(char* token)    // Function name: <service>_<action>_<text>
+{
+	int nbr;
+	
+	nbr = strlen(token);
+	
+	fprintf(stdout, "token validity: ");
+	fflush(stdout);
+	
+
+	if (nbr != 32)
+	{
+		fprintf(stdout, "\033[1;31mFAILED\033[0m");
+		return EXIT_FAILURE;
+	}
+	
+	fprintf(stdout, "\033[1;32mOK\033[0m");
 	return EXIT_SUCCESS;
 }
 
 
 int main(int argc, char* argv[])
 {
-	char key[64];
-	CURL* curl;
+	char     token[64];
+	CURL*    curl;
 	CURLcode res;
+	service* sgdb = NULL;
 	
-	http_api* sgdb = (http_api*) calloc(1, sizeof(http_api));
-	sgdb->base_url = (char*) calloc(512, sizeof(char));
-	sgdb->auth = (char*) calloc(64, sizeof(char));
+	// Initialisation service
+	sgdb = init_service();
+	if (NULL == sgdb)
+		return EXIT_FAILURE;
 	
-	fprintf(stdout, "%s\n", sgdb->base_url);
-	get_apikey(key);
-	// TODO Verif the API key (32 char)
-	sgdb->auth = strncat(sgdb->auth, "Authorization: Bearer ", strlen("Authorization: Bearer ") + 1);
-	sgdb->auth = strncat(sgdb->auth, key, strlen(key) + 1);
-	sgdb->base_url = strncat(sgdb->base_url,
-	                        "https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk",
-	                        strlen("https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk") + 1);
-	fprintf(stdout, "%s\n", sgdb->auth);
+	sgdb_get_token(token);
+	if (sgdb_verif_token(token) != EXIT_SUCCESS)
+	{
+		destruct_service(sgdb);
+		fprintf (stdout, "\n");
+		return EXIT_FAILURE;
+	}
 	
+	sgdb->url = strncat(sgdb->url,
+	                    "https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk",
+	                    strlen("https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk") + 1);
+	sgdb->h_auth = strncat(sgdb->h_auth, "Authorization: Bearer ", strlen("Authorization: Bearer ") + 1);
+	sgdb->h_auth = strncat(sgdb->h_auth, token, strlen(token) + 1);
 	
+	fprintf(stdout, "\n================ Json File =================\n");
+	// Start of curl implementation
 	// FIXME Find the memory leak (use --leak-check=full --show-leak-kinds=all)
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 	curl = curl_easy_init();
@@ -69,9 +118,9 @@ int main(int argc, char* argv[])
 	{
 		struct curl_slist* headers = NULL;
 		
-		curl_easy_setopt(curl, CURLOPT_URL, sgdb->base_url);
+		curl_easy_setopt(curl, CURLOPT_URL, sgdb->url);
 		
-		headers = curl_slist_append (headers, sgdb->auth);
+		headers = curl_slist_append (headers, sgdb->h_auth);
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		
 		res = curl_easy_perform(curl);
@@ -81,10 +130,10 @@ int main(int argc, char* argv[])
 		curl_easy_cleanup(curl);
 	}
 	curl_global_cleanup();
+	// End of curl implementation
+	fprintf(stdout, "\n============================================\n");
 	
-	free(sgdb->auth);
-	free(sgdb->base_url);
-	free(sgdb);
+	destruct_service(sgdb);
 	fprintf (stdout, "\n");
 	return EXIT_SUCCESS;
 }
