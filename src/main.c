@@ -25,7 +25,7 @@
 
 #define TRUE  0
 #define FALSE 1
-#define USERAGENT     "User-Agent: lunion"
+#define USERAGENT     "lunion"
 #define AUTHORIZATION "Authorization: Bearer "
 
 
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 		if (serv->req == TRUE)
 		{
 			token = get_token(serv);
-			if (verif_token(serv, token))
+			if (verif_token(serv, token) == EXIT_FAILURE)
 			{
 				// Always cleanup
 				curl_easy_cleanup(curl);
