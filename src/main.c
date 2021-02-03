@@ -33,9 +33,10 @@
 
 
 //------ Service name
-// 1 Github:      https://api.github.com/repos/
-// 2 Gitlab:      https://gitlab.example.com/api/v4/projects
-// 3 SteamGridDB: https://www.steamgriddb.com/api/v2/
+// 1 Github:         https://api.github.com/repos/
+// 2 Gitlab:         https://gitlab.example.com/api/v4/projects
+// 3 PC Gaming Wiki: https://www.pcgamingwiki.com/w/api.php?action=browsebysubject&format=json&subject=
+// 4 SteamGridDB:    https://www.steamgriddb.com/api/v2/
 //------
 typedef struct
 {
@@ -81,9 +82,10 @@ int fill_service(service* s, int name, char* addr)
 	
 	// Flag for determinate if we need a mandatory authentification
 	//------
-	// 1 Github:      https://api.github.com/repos/
-	// 2 Gitlab:      https://gitlab.example.com/api/v4/projects
-	// 3 SteamGridDB: https://www.steamgriddb.com/api/v2/
+	// 1 Github:         https://api.github.com/repos/
+	// 2 Gitlab:         https://gitlab.example.com/api/v4/projects
+	// 3 PC Gaming Wiki: https://www.pcgamingwiki.com/w/api.php?action=browsebysubject&format=json&subject=
+	// 4 SteamGridDB:    https://www.steamgriddb.com/api/v2/
 	//------
 	switch (name)
 	{
@@ -94,6 +96,9 @@ int fill_service(service* s, int name, char* addr)
 			s->req = FALSE;
 			break;
 		case 3:
+			s->req = FALSE;
+			break;
+		case 4:
 			s->req = TRUE;
 			break;
 	}
@@ -117,6 +122,8 @@ char* get_token(service* s)
 		case 2:
 			break;
 		case 3:
+			break;
+		case 4:
 			fprintf(stdout,
 			        "Please enter your API key ( https://www.steamgriddb.com/profile/preferences ): ");
 			break;
@@ -152,6 +159,9 @@ int verif_token(service* s, char* token)
 			fprintf(stdout, "\033[1;32mOK\033[0m (not implemented)\n");
 			break;
 		case 3:
+			fprintf(stdout, "\033[1;32mOK\033[0m (not implemented)\n");
+			break;
+		case 4:
 			if (nbr != 32)
 			{
 				fprintf(stdout, "\033[1;31mFAILED\033[0m\n");
@@ -178,7 +188,7 @@ int main(int argc, char* argv[])
 	if (NULL == serv)
 		return EXIT_FAILURE;
 	
-	ret = fill_service(serv, 3, "https://www.steamgriddb.com/api/v2/search/autocomplete/cyberpunk");
+	ret = fill_service(serv, 3, "https://www.pcgamingwiki.com/w/api.php?action=browsebysubject&format=json&subject=Cyberpunk 2077");
 	if (ret == EXIT_FAILURE)
 	{
 		destruct_service(serv);
